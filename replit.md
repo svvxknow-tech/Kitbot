@@ -79,20 +79,23 @@ The bot uses offline/cracked authentication with the username "SvvxKnow_BOT". Th
 - Event-driven architecture for handling Minecraft events
 
 ### Commands
-- **!kit**: Request a kit delivery (available to all players)
-- **!count [dupes/kits/orders/total] [username]**: View delivery statistics (whitelist only)
-- **!chatgpt <question>**: Ask OpenAI and get pastebin response (whitelist only)
-- **!come**: Bot sends TPA to player (whitelist only)
-- **!follow**: Bot follows the player (whitelist only)
-- **!stop**: Stop following (whitelist only)
-- **!return**: Bot /kills back to base (whitelist only)
+- **?kit <type>**: Request a kit delivery (available to all players). Types: grief, pvp, basic
+- **?kitlist**: Display all available kits with descriptions (available to all players)
+- **?count [dupes/kits/orders/total] [username]**: View delivery statistics (whitelist only)
+- **?chatgpt <question>**: Ask OpenAI and get pastebin response (whitelist only)
+- **?come**: Bot sends TPA to player (whitelist only)
+- **?follow**: Bot follows the player (whitelist only)
+- **?stop**: Stop following (whitelist only)
+- **?return**: Bot /kills back to base (whitelist only)
 
 ## User Preferences
 None documented yet.
 
 ## Notes
-- The bot connects to 8b8t.me using Minecraft version 1.12.2
+- The bot connects to 8b8t.me using Minecraft version 1.21.4
 - Uses offline/cracked authentication with username "SvvxKnow_BOT"
 - On first join, automatically sends TPA request to the owner
-- The bot is designed to spawn on top of a pressure plate on the server
+- **Privacy & Security**: All coordinate logging has been disabled - this bot is 100% coord logger free
+- ChatGPT integration requires OPENAI_API_KEY in environment secrets
+- The bot advertises itself as coord-free every 20 seconds to build trust with players
 - This is a backend console application with no web frontend
