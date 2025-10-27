@@ -174,10 +174,10 @@ async function processKitQueue(bot) {
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            // Use built-in customName() method to get renamed item name
-            const customName = item.customName ? item.customName() : null;
+            // Use built-in customName property to get renamed item name (returns null if not renamed)
+            const customName = item.customName;
             const displayName = customName || item.displayName || item.name;
-            console.log(`[KIT] Found shulker: "${displayName}"`);
+            console.log(`[KIT] Found shulker: "${displayName}" (custom: ${customName ? 'yes' : 'no'})`);
             
             // Match any shulker box display name containing the kit type (case-insensitive)
             if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
