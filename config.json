@@ -13,5 +13,22 @@
     "y": 64,
     "z": 25172072.535269417
   },
-  "kitName": "kit"
+  "kitName": "kit",
+  "kits": [
+    {
+      "name": "grief",
+      "shulkerName": "SvvxKnow - GRIEF",
+      "description": "Griefing kit with TNT, lava, and tools"
+    },
+    {
+      "name": "pvp",
+      "shulkerName": "SvvxKnow - PVP",
+      "description": "PvP kit with armor, weapons, and potions"
+    },
+    {
+      "name": "basic",
+      "shulkerName": "SvvxKnow - BASIC",
+      "description": "Basic survival kit with food and tools"
+    }
+  ]
 }
