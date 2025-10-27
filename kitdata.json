@@ -9,9 +9,14 @@
       "kits": 0,
       "orders": 1,
       "dupes": 0
+    },
+    "Yggdrasil": {
+      "kits": 0,
+      "orders": 1,
+      "dupes": 0
     }
   },
   "totalKits": 0,
-  "totalOrders": 3,
+  "totalOrders": 4,
   "totalDupes": 0
 }

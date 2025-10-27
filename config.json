@@ -1,6 +1,6 @@
 {
   "owner": "SvxxKnow",
-  "prefix": "!",
+  "prefix": "?",
   "cooldown": 10000,
   "whitelist": [],
   "chestLocation": {
