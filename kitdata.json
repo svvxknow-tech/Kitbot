@@ -1,6 +1,17 @@
 {
-  "deliveries": {},
+  "deliveries": {
+    "Josuexx1177": {
+      "kits": 0,
+      "orders": 2,
+      "dupes": 0
+    },
+    "Gsuschrist13": {
+      "kits": 0,
+      "orders": 1,
+      "dupes": 0
+    }
+  },
   "totalKits": 0,
-  "totalOrders": 0,
+  "totalOrders": 3,
   "totalDupes": 0
 }
