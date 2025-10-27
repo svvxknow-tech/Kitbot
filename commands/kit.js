@@ -156,7 +156,7 @@ async function processKitQueue(bot) {
         
         // Look at the chest before opening (important!)
         await bot.lookAt(chestBlock.position);
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Try to open the chest
         let chest;
@@ -168,20 +168,44 @@ async function processKitQueue(bot) {
           continue;
         }
         
+        // Wait for chest to fully load
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Look for any shulkerbox with matching kit name (case-insensitive)
         const items = chest.containerItems();
         console.log(`[KIT] Chest has ${items.length} items`);
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
+            // Debug: Log full item details
+            console.log(`[KIT] Checking shulker - name: ${item.name}, displayName: ${item.displayName}`);
+            console.log(`[KIT] Has NBT: ${item.nbt ? 'yes' : 'no'}`);
+            
             // Use built-in customName property to get renamed item name (returns null if not renamed)
             const customName = item.customName;
-            const displayName = customName || item.displayName || item.name;
-            console.log(`[KIT] Found shulker: "${displayName}" (custom: ${customName ? 'yes' : 'no'})`);
+            console.log(`[KIT] customName property: "${customName}"`);
+            
+            // If customName doesn't work, try direct NBT access
+            let nbtName = null;
+            if (item.nbt && item.nbt.value && item.nbt.value.display && item.nbt.value.display.value.Name) {
+              nbtName = item.nbt.value.display.value.Name.value;
+              console.log(`[KIT] NBT Name raw: "${nbtName}"`);
+              try {
+                const parsed = JSON.parse(nbtName);
+                nbtName = parsed.text || nbtName;
+                console.log(`[KIT] NBT Name parsed: "${nbtName}"`);
+              } catch {
+                console.log(`[KIT] NBT Name (not JSON): "${nbtName}"`);
+              }
+            }
+            
+            const displayName = customName || nbtName || item.displayName || item.name;
+            console.log(`[KIT] Final display name: "${displayName}"`);
             
             // Match any shulker box display name containing the kit type (case-insensitive)
             if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
               // Found a matching shulkerbox - take it
+              console.log(`[KIT] MATCH FOUND! Taking ${kitType} kit...`);
               try {
                 await chest.withdraw(item.type, null, item.count);
                 shulkerFound = true;
