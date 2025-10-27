@@ -35,6 +35,6 @@ module.exports = {
     }
     
     if (username != config.owner) return;
-    bot.chat(`/tpy ${username}`);
+    bot.chat(`/tpaaccept`);
   },
 };
