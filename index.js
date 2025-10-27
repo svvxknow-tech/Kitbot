@@ -96,6 +96,18 @@ function bind(bot) {
         console.log("Sent login command");
         console.log("Bot ready!");
         global.firstJoin = false;
+        
+        // Start periodic advertising messages
+        let messageIndex = 0;
+        const messages = [
+          "Do ?kitlist to see available kits!",
+          "Do ?commands to see all of the bot commands!"
+        ];
+        
+        setInterval(() => {
+          bot.chat(messages[messageIndex]);
+          messageIndex = (messageIndex + 1) % messages.length;
+        }, 20000);
       }, 1000);
     }
   });
