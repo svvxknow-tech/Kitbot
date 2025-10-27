@@ -134,44 +134,37 @@ async function processKitQueue(bot) {
           continue;
         }
         
-        // Always navigate to the chest to ensure proper positioning
         const distance = bot.entity.position.distanceTo(chestBlock.position);
         console.log(`[KIT] Checking chest at ${chestPos}, distance: ${distance.toFixed(2)}`);
         
-        if (distance > 4.5) {
-          // Navigate closer to chest
-          bot.pathfinder.setGoal(new goals.GoalBlock(chestPos.x, chestPos.y, chestPos.z));
+        // Navigate to the chest if too far
+        if (distance > 4) {
+          bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 1));
           await new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
               reject(new Error("Navigation timeout to chest"));
             }, 10000);
             
-            const reachedHandler = () => {
+            bot.once("goal_reached", () => {
               clearTimeout(timeout);
               resolve();
-            };
-            
-            bot.once("goal_reached", reachedHandler);
-            bot.once("path_update", (results) => {
-              if (results.status === 'noPath') {
-                bot.removeListener("goal_reached", reachedHandler);
-                clearTimeout(timeout);
-                reject(new Error("No path to chest"));
-              }
             });
           });
           
-          // Wait after navigation
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
         
-        // Try to open the chest with shorter timeout
+        // Look at the chest before opening (important!)
+        await bot.lookAt(chestBlock.position);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Try to open the chest (simple approach from mineflayer example)
         let chest;
         try {
-          chest = await bot.openContainer(chestBlock, null, 5000); // 5 second timeout
+          chest = await bot.openContainer(chestBlock);
         } catch (openError) {
           console.log(`[KIT] Could not open chest at ${chestPos}: ${openError.message}`);
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise(resolve => setTimeout(resolve, 2000));
           continue;
         }
         
@@ -201,12 +194,12 @@ async function processKitQueue(bot) {
         if (shulkerFound) break;
         
         // Add delay between chest checks to avoid server rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
       } catch (err) {
         // Skip this chest if we can't open it and try the next one
         console.log(`[KIT] Error with chest at ${chestPos}: ${err.message}`);
         // Add delay even on error to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         continue;
       }
     }
