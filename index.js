@@ -5,6 +5,7 @@ const config = require("./config.json");
 const discord = require("@discordjs/collection");
 const { pathfinder, Movements } = require("mineflayer-pathfinder");
 const collectBlock = require("mineflayer-collectblock");
+const readline = require("readline");
 
 // Config Validation
 
@@ -59,6 +60,20 @@ global.firstJoin = true;
 bind(bot);
 
 require("./handlers/commandHandler")(bot);
+
+// Console input handler
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: ''
+});
+
+rl.on('line', (input) => {
+  if (input.trim()) {
+    bot.chat(input.trim());
+    console.log(`[CONSOLE] Sent: ${input.trim()}`);
+  }
+});
 
 // Bind Events function
 
