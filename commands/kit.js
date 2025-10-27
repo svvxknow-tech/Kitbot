@@ -154,19 +154,22 @@ async function processKitQueue(bot) {
           const signBlock = bot.blockAt(signPos);
           if (signBlock && signBlock.name.includes('sign')) {
             try {
-              signText = signBlock.getSignText();
-              if (signText) {
+              const rawSignText = signBlock.getSignText();
+              if (rawSignText) {
+                // Convert to string if it's an array or object
+                signText = Array.isArray(rawSignText) ? rawSignText.join(' ') : String(rawSignText);
                 console.log(`[KIT] Found sign on chest at ${chestPos}: "${signText}"`);
                 break;
               }
             } catch (e) {
               // Sign reading failed, continue
+              console.log(`[KIT] Error reading sign: ${e.message}`);
             }
           }
         }
         
         // Check if sign text matches the kit type
-        if (!signText || !signText.toLowerCase().includes(kitType.toLowerCase())) {
+        if (!signText || !String(signText).toLowerCase().includes(kitType.toLowerCase())) {
           console.log(`[KIT] Chest at ${chestPos} - sign text doesn't match kit type "${kitType}"`);
           continue;
         }
