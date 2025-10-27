@@ -4,6 +4,7 @@ const util = require("../util");
 
 module.exports = {
   name: "chatgpt",
+  description: "Ask ChatGPT a question. Usage: ?chatgpt <question> (whitelist only)",
   async execute(bot, args, username) {
     if (!util.isWhitelisted(username)) {
       return bot.chat(`/w ${username} You are not authorized to use this command.`);

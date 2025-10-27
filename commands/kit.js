@@ -7,6 +7,7 @@ const axios = require("axios");
 
 module.exports = {
   name: "kit",
+  description: "Request a kit delivery (available to all players)",
   async execute(bot, args, username) {
     if (util.hasCooldown(username))
       return bot.chat(`/w ${username} You're still on cooldown.`);

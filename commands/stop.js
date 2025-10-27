@@ -3,6 +3,7 @@ const util = require("../util");
 
 module.exports = {
   name: "stop",
+  description: "Stop following (whitelist only)",
   execute(bot, args, username) {
     if (!util.isWhitelisted(username)) {
       return bot.chat(`/w ${username} You are not authorized to use this command.`);

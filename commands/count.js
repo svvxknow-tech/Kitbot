@@ -4,6 +4,7 @@ const util = require("../util");
 
 module.exports = {
   name: "count",
+  description: "View delivery statistics. Usage: ?count [dupes/kits/orders/total] [username] (whitelist only)",
   execute(bot, args, username) {
     if (!util.isWhitelisted(username)) {
       return bot.chat(`/w ${username} You are not authorized to use this command.`);

@@ -4,6 +4,7 @@ const { goals } = require("mineflayer-pathfinder");
 
 module.exports = {
   name: "follow",
+  description: "Bot follows you (whitelist only)",
   execute(bot, args, username) {
     if (!util.isWhitelisted(username)) {
       return bot.chat(`/w ${username} You are not authorized to use this command.`);
