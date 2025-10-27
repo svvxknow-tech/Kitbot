@@ -5,6 +5,7 @@ integrations = ["javascript_openai:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["libuuid"]
 
 [workflows]
 runButton = "Project"
@@ -23,8 +24,17 @@ name = "Kitbot"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm start"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 34599
+externalPort = 3000

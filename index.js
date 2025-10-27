@@ -6,6 +6,7 @@ const discord = require("@discordjs/collection");
 const { pathfinder, Movements } = require("mineflayer-pathfinder");
 const collectBlock = require("mineflayer-collectblock");
 const readline = require("readline");
+const { mineflayer: mineflayerViewer } = require("prismarine-viewer");
 
 // Config Validation
 
@@ -83,6 +84,11 @@ function bind(bot) {
     const defaultMove = new Movements(bot);
     bot.pathfinder.setMovements(defaultMove);
     console.log("Bot spawned and pathfinder initialized!");
+    
+    // Start prismarine-viewer
+    mineflayerViewer(bot, { port: 5000, firstPerson: true });
+    console.log("Prismarine viewer started on port 5000");
+    console.log("View what the bot sees at: https://" + process.env.REPL_SLUG + "." + process.env.REPL_OWNER + ".repl.co");
     
     if (global.firstJoin) {
       setTimeout(() => {
