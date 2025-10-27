@@ -85,9 +85,9 @@ async function processKitQueue(bot) {
     
     bot.chat(`/w ${username} Fetching your ${kitType} kit...`);
     
-    // First, try to find chests near current position
+    // First, try to find chests near current position (including trapped chests)
     let chests = bot.findBlocks({
-      matching: (block) => block.name.includes("chest") && !block.name.includes("trapped"),
+      matching: (block) => block.name.includes("chest"),
       maxDistance: 32,
       count: 30
     });
@@ -109,9 +109,9 @@ async function processKitQueue(bot) {
         });
       });
 
-      // Find chests again after navigating
+      // Find chests again after navigating (including trapped chests)
       chests = bot.findBlocks({
-        matching: (block) => block.name.includes("chest") && !block.name.includes("trapped"),
+        matching: (block) => block.name.includes("chest"),
         maxDistance: 20,
         count: 20
       });
@@ -124,13 +124,15 @@ async function processKitQueue(bot) {
     let shulkerFound = false;
 
     // Check each chest for the named shulkerbox
-    for (const chestPos of chests) {
+    for (let i = 0; i < chests.length; i++) {
+      const chestPos = chests[i];
+      
       try {
         // Navigate close to the chest before opening it
         const chestBlock = bot.blockAt(chestPos);
         const distance = bot.entity.position.distanceTo(chestBlock.position);
         
-        if (distance > 4) {
+        if (distance > 3.5) {
           // Too far, navigate closer
           bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 2));
           await new Promise((resolve, reject) => {
@@ -143,17 +145,20 @@ async function processKitQueue(bot) {
               resolve();
             });
           });
+          
+          // Wait after navigation
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
         
         const chest = await bot.openContainer(chestBlock);
         
-        // Look for shulkerbox with matching name
+        // Look for any shulkerbox with matching name
         for (const item of chest.containerItems()) {
           if (item && item.name.includes("shulker_box")) {
             const displayName = item.nbt?.value?.display?.value?.Name?.value;
             
             if (displayName && displayName.includes(shulkerName)) {
-              // Found the correct shulkerbox
+              // Found the correct shulkerbox - take it
               await chest.withdraw(item.type, null, item.count);
               shulkerFound = true;
               shulkerWithdrawn = true;
@@ -166,9 +171,16 @@ async function processKitQueue(bot) {
         chest.close();
         
         if (shulkerFound) break;
+        
+        // Add delay between chest checks to avoid server rate limiting
+        if (i < chests.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       } catch (err) {
         // Skip this chest if we can't open it and try the next one
         console.log(`[KIT] Could not open chest at ${chestPos}: ${err.message}`);
+        // Add delay even on error to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
     }
