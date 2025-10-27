@@ -126,7 +126,26 @@ async function processKitQueue(bot) {
     // Check each chest for the named shulkerbox
     for (const chestPos of chests) {
       try {
-        const chest = await bot.openContainer(bot.blockAt(chestPos));
+        // Navigate close to the chest before opening it
+        const chestBlock = bot.blockAt(chestPos);
+        const distance = bot.entity.position.distanceTo(chestBlock.position);
+        
+        if (distance > 4) {
+          // Too far, navigate closer
+          bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 2));
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error("Navigation timeout to chest"));
+            }, 10000);
+            
+            bot.once("goal_reached", () => {
+              clearTimeout(timeout);
+              resolve();
+            });
+          });
+        }
+        
+        const chest = await bot.openContainer(chestBlock);
         
         // Look for shulkerbox with matching name
         for (const item of chest.containerItems()) {
