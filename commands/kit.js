@@ -128,42 +128,69 @@ async function processKitQueue(bot) {
       const chestPos = chests[i];
       
       try {
-        // Navigate close to the chest before opening it
         const chestBlock = bot.blockAt(chestPos);
-        const distance = bot.entity.position.distanceTo(chestBlock.position);
+        if (!chestBlock) {
+          console.log(`[KIT] No block at ${chestPos}, skipping`);
+          continue;
+        }
         
-        if (distance > 3.5) {
-          // Too far, navigate closer
-          bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 2));
+        // Always navigate to the chest to ensure proper positioning
+        const distance = bot.entity.position.distanceTo(chestBlock.position);
+        console.log(`[KIT] Checking chest at ${chestPos}, distance: ${distance.toFixed(2)}`);
+        
+        if (distance > 4.5) {
+          // Navigate closer to chest
+          bot.pathfinder.setGoal(new goals.GoalBlock(chestPos.x, chestPos.y, chestPos.z));
           await new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
               reject(new Error("Navigation timeout to chest"));
             }, 10000);
             
-            bot.once("goal_reached", () => {
+            const reachedHandler = () => {
               clearTimeout(timeout);
               resolve();
+            };
+            
+            bot.once("goal_reached", reachedHandler);
+            bot.once("path_update", (results) => {
+              if (results.status === 'noPath') {
+                bot.removeListener("goal_reached", reachedHandler);
+                clearTimeout(timeout);
+                reject(new Error("No path to chest"));
+              }
             });
           });
           
           // Wait after navigation
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 800));
         }
         
-        const chest = await bot.openContainer(chestBlock);
+        // Try to open the chest with shorter timeout
+        let chest;
+        try {
+          chest = await bot.openContainer(chestBlock, null, 5000); // 5 second timeout
+        } catch (openError) {
+          console.log(`[KIT] Could not open chest at ${chestPos}: ${openError.message}`);
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          continue;
+        }
         
         // Look for any shulkerbox with matching kit name (case-insensitive)
-        for (const item of chest.containerItems()) {
+        const items = chest.containerItems();
+        console.log(`[KIT] Chest has ${items.length} items`);
+        
+        for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            const displayName = item.nbt?.value?.display?.value?.Name?.value;
+            const displayName = item.nbt?.value?.display?.value?.Name?.value || "unnamed";
+            console.log(`[KIT] Found shulker: "${displayName}"`);
             
             // Match any shulker box name containing the kit type (e.g., "grief", "pvp", "basic")
-            if (displayName && displayName.toLowerCase().includes(kitType.toLowerCase())) {
+            if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
               // Found a matching shulkerbox - take it
               await chest.withdraw(item.type, null, item.count);
               shulkerFound = true;
               shulkerWithdrawn = true;
-              console.log(`[KIT] Found ${kitType} kit shulker: "${displayName}" in chest at ${chestPos}`);
+              console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${displayName}"`);
               break;
             }
           }
@@ -174,14 +201,12 @@ async function processKitQueue(bot) {
         if (shulkerFound) break;
         
         // Add delay between chest checks to avoid server rate limiting
-        if (i < chests.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } catch (err) {
         // Skip this chest if we can't open it and try the next one
-        console.log(`[KIT] Could not open chest at ${chestPos}: ${err.message}`);
+        console.log(`[KIT] Error with chest at ${chestPos}: ${err.message}`);
         // Add delay even on error to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         continue;
       }
     }
