@@ -84,11 +84,11 @@ function bind(bot) {
     bot.pathfinder.setMovements(defaultMove);
     console.log("Bot spawned and pathfinder initialized!");
     
-    if (global.firstJoin && config.owner) {
+    if (global.firstJoin) {
       setTimeout(() => {
         bot.chat("/login lol123");
         console.log("Sent login command");
-        console.log(`Bot ready. Waiting for owner (${config.owner}) to send /tpahere request...`);
+        console.log("Bot ready!");
         global.firstJoin = false;
       }, 1000);
     }
