@@ -32,7 +32,7 @@ if (!config.cooldown) {
 const options = {
   host: "8b8t.me",
   auth: "offline",
-  version: "1.21.4",
+  version: false, // Auto-detect server version
   username: "SvvxKnow_BOT",
 };
 

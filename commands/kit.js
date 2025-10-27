@@ -83,62 +83,79 @@ async function processKitQueue(bot) {
     // Clean inventory before starting to prevent wrong kit delivery
     await cleanupInventory(bot);
     
-    // Navigate to chest location
     bot.chat(`/w ${username} Fetching your ${kitType} kit...`);
     
-    const chestPos = config.chestLocation;
-    bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 3));
-
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error("Navigation timeout"));
-      }, 30000);
-      
-      bot.once("goal_reached", () => {
-        clearTimeout(timeout);
-        resolve();
-      });
-    });
-
-    // Find nearby chests
-    const chests = bot.findBlocks({
+    // First, try to find chests near current position
+    let chests = bot.findBlocks({
       matching: (block) => block.name.includes("chest") && !block.name.includes("trapped"),
-      maxDistance: 20,
-      count: 20
+      maxDistance: 32,
+      count: 30
     });
+
+    // If no chests found nearby, navigate to configured chest location
+    if (chests.length === 0 && config.chestLocation) {
+      bot.chat(`/w ${username} No nearby chests, navigating to kit storage...`);
+      const chestPos = config.chestLocation;
+      bot.pathfinder.setGoal(new goals.GoalNear(chestPos.x, chestPos.y, chestPos.z, 3));
+
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("Navigation timeout - cannot reach kit storage"));
+        }, 30000);
+        
+        bot.once("goal_reached", () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+      });
+
+      // Find chests again after navigating
+      chests = bot.findBlocks({
+        matching: (block) => block.name.includes("chest") && !block.name.includes("trapped"),
+        maxDistance: 20,
+        count: 20
+      });
+    }
 
     if (chests.length === 0) {
-      throw new Error("No chests found at kit location");
+      throw new Error("No chests found - cannot fetch kit");
     }
 
     let shulkerFound = false;
 
     // Check each chest for the named shulkerbox
     for (const chestPos of chests) {
-      const chest = await bot.openContainer(bot.blockAt(chestPos));
-      
-      // Look for shulkerbox with matching name
-      for (const item of chest.containerItems()) {
-        if (item && item.name.includes("shulker_box")) {
-          const displayName = item.nbt?.value?.display?.value?.Name?.value;
-          
-          if (displayName && displayName.includes(shulkerName)) {
-            // Found the correct shulkerbox
-            await chest.withdraw(item.type, null, item.count);
-            shulkerFound = true;
-            shulkerWithdrawn = true;
-            break;
+      try {
+        const chest = await bot.openContainer(bot.blockAt(chestPos));
+        
+        // Look for shulkerbox with matching name
+        for (const item of chest.containerItems()) {
+          if (item && item.name.includes("shulker_box")) {
+            const displayName = item.nbt?.value?.display?.value?.Name?.value;
+            
+            if (displayName && displayName.includes(shulkerName)) {
+              // Found the correct shulkerbox
+              await chest.withdraw(item.type, null, item.count);
+              shulkerFound = true;
+              shulkerWithdrawn = true;
+              console.log(`[KIT] Found ${kitType} kit in chest at ${chestPos}`);
+              break;
+            }
           }
         }
-      }
 
-      chest.close();
-      
-      if (shulkerFound) break;
+        chest.close();
+        
+        if (shulkerFound) break;
+      } catch (err) {
+        // Skip this chest if we can't open it and try the next one
+        console.log(`[KIT] Could not open chest at ${chestPos}: ${err.message}`);
+        continue;
+      }
     }
 
     if (!shulkerFound) {
-      throw new Error(`No ${kitType} kit shulkerbox found in chests`);
+      throw new Error(`No ${kitType} kit shulkerbox found in any nearby chests`);
     }
 
     // Now teleport to player
