@@ -101,7 +101,9 @@ function bind(bot) {
         let messageIndex = 0;
         const messages = [
           "Do ?kitlist to see available kits!",
-          "Do ?commands to see all of the bot commands!"
+          "Do ?commands to see all of the bot commands!",
+          "This bot is coord logger free! Your privacy is respected."
+          "
         ];
         
         setInterval(() => {
