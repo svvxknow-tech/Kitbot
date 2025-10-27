@@ -158,7 +158,7 @@ async function processKitQueue(bot) {
         await bot.lookAt(chestBlock.position);
         await new Promise(resolve => setTimeout(resolve, 200));
         
-        // Try to open the chest (simple approach from mineflayer example)
+        // Try to open the chest
         let chest;
         try {
           chest = await bot.openContainer(chestBlock);
@@ -174,45 +174,22 @@ async function processKitQueue(bot) {
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            let customName = null;
+            // Use displayName from mineflayer which properly handles custom names
+            const displayName = item.displayName || item.name;
+            console.log(`[KIT] Found shulker: "${displayName}"`);
             
-            // Debug: Log the full NBT structure for the first shulker
-            if (item.nbt) {
-              console.log(`[KIT DEBUG] Full NBT:`, JSON.stringify(item.nbt, null, 2));
-            }
-            
-            // Try to get the custom name from NBT
-            if (item.nbt?.value?.display?.value?.Name?.value) {
-              const nameValue = item.nbt.value.display.value.Name.value;
-              
-              // Name might be in JSON format like '{"text":"SvvxKnow - GRIEF"}'
-              try {
-                const parsed = JSON.parse(nameValue);
-                if (parsed.text) {
-                  customName = parsed.text;
-                } else if (parsed.extra && Array.isArray(parsed.extra)) {
-                  // Handle complex JSON text components
-                  customName = parsed.extra.map(e => e.text || '').join('');
-                } else {
-                  customName = nameValue;
-                }
-              } catch (e) {
-                // Not JSON, use as-is (might be plain text or legacy format)
-                customName = nameValue;
-              }
-            }
-            
-            const displayName = customName || item.displayName || item.name;
-            console.log(`[KIT] Found shulker: "${displayName}" (custom: ${customName ? 'yes' : 'no'})`);
-            
-            // Match any shulker box name containing the kit type (case-insensitive)
-            if (customName && customName.toLowerCase().includes(kitType.toLowerCase())) {
+            // Match any shulker box display name containing the kit type (case-insensitive)
+            if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
               // Found a matching shulkerbox - take it
-              await chest.withdraw(item.type, null, item.count);
-              shulkerFound = true;
-              shulkerWithdrawn = true;
-              console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${customName}"`);
-              break;
+              try {
+                await chest.withdraw(item.type, null, item.count);
+                shulkerFound = true;
+                shulkerWithdrawn = true;
+                console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${displayName}"`);
+                break;
+              } catch (withdrawError) {
+                console.log(`[KIT] Failed to withdraw: ${withdrawError.message}`);
+              }
             }
           }
         }

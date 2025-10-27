@@ -5,6 +5,7 @@ const config = require("./config.json");
 const discord = require("@discordjs/collection");
 const { pathfinder, Movements } = require("mineflayer-pathfinder");
 const collectBlock = require("mineflayer-collectblock");
+const gui = require("mineflayer-gui");
 const readline = require("readline");
 const { mineflayer: mineflayerViewer } = require("prismarine-viewer");
 
@@ -44,6 +45,7 @@ var bot = mineflayer.createBot(options);
 
 bot.loadPlugin(pathfinder);
 bot.loadPlugin(collectBlock.plugin);
+bot.loadPlugin(gui);
 
 // Initialization of required variables.
 
