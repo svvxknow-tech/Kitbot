@@ -12,7 +12,7 @@ module.exports = {
     bot.chatAddPattern(/^Walk a block to speak in chat..*/, "moveToTalk");
 
     // Accepted Teleport Event
-    bot.chatAddPattern(/^Teleported to (\w*).*/, "acceptedTp");
+    bot.chatAddPattern(/^Teleporting....*/, "acceptedTp");
 
     // Delayed /kill Command
     bot.chatAddPattern(
