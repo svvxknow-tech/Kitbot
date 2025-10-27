@@ -174,34 +174,39 @@ async function processKitQueue(bot) {
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            // Try different NBT paths to get the display name
-            let displayName = "unnamed";
+            let customName = null;
             
-            // Debug: log the NBT structure
-            if (item.nbt) {
-              console.log(`[KIT] NBT structure:`, JSON.stringify(item.nbt, null, 2));
-            }
-            
-            // Try different paths for the display name
+            // Try to get the custom name from NBT
             if (item.nbt?.value?.display?.value?.Name?.value) {
-              displayName = item.nbt.value.display.value.Name.value;
-            } else if (item.nbt?.value?.display?.Name?.value) {
-              displayName = item.nbt.value.display.Name.value;
-            } else if (item.displayName) {
-              displayName = item.displayName;
-            } else if (item.customName) {
-              displayName = item.customName;
+              const nameValue = item.nbt.value.display.value.Name.value;
+              
+              // Name might be in JSON format like '{"text":"SvvxKnow - GRIEF"}'
+              try {
+                const parsed = JSON.parse(nameValue);
+                if (parsed.text) {
+                  customName = parsed.text;
+                } else if (parsed.extra && Array.isArray(parsed.extra)) {
+                  // Handle complex JSON text components
+                  customName = parsed.extra.map(e => e.text || '').join('');
+                } else {
+                  customName = nameValue;
+                }
+              } catch (e) {
+                // Not JSON, use as-is (might be plain text or legacy format)
+                customName = nameValue;
+              }
             }
             
-            console.log(`[KIT] Found shulker: "${displayName}"`);
+            const displayName = customName || item.displayName || item.name;
+            console.log(`[KIT] Found shulker: "${displayName}" (custom: ${customName ? 'yes' : 'no'})`);
             
             // Match any shulker box name containing the kit type (case-insensitive)
-            if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
+            if (customName && customName.toLowerCase().includes(kitType.toLowerCase())) {
               // Found a matching shulkerbox - take it
               await chest.withdraw(item.type, null, item.count);
               shulkerFound = true;
               shulkerWithdrawn = true;
-              console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${displayName}"`);
+              console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${customName}"`);
               break;
             }
           }
