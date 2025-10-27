@@ -95,7 +95,6 @@ None documented yet.
 - The bot connects to 8b8t.me using Minecraft version 1.21.4
 - Uses offline/cracked authentication with username "SvvxKnow_BOT"
 - On first join, automatically sends TPA request to the owner
-- **Privacy & Security**: All coordinate logging has been disabled - this bot is 100% coord logger free
+- Coordinate logging: Bot logs TPA requests and coordinates to Discord webhook (if DISCORD_WEBHOOK_URL is set)
 - ChatGPT integration requires OPENAI_API_KEY in environment secrets
-- The bot advertises itself as coord-free every 20 seconds to build trust with players
 - This is a backend console application with no web frontend
