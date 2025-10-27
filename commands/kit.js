@@ -123,7 +123,7 @@ async function processKitQueue(bot) {
 
     let shulkerFound = false;
 
-    // Check each chest for the named shulkerbox
+    // Check each chest for signs with kit labels
     for (let i = 0; i < chests.length; i++) {
       const chestPos = chests[i];
       
@@ -134,8 +134,47 @@ async function processKitQueue(bot) {
           continue;
         }
         
+        // Check for signs around the chest (all 6 directions + diagonals)
+        const offsets = [
+          {x: 0, y: 1, z: 0},   // above
+          {x: 0, y: -1, z: 0},  // below
+          {x: 1, y: 0, z: 0},   // east
+          {x: -1, y: 0, z: 0},  // west
+          {x: 0, y: 0, z: 1},   // south
+          {x: 0, y: 0, z: -1},  // north
+          {x: 1, y: 1, z: 0},   // above east
+          {x: -1, y: 1, z: 0},  // above west
+          {x: 0, y: 1, z: 1},   // above south
+          {x: 0, y: 1, z: -1},  // above north
+        ];
+        
+        let signText = null;
+        for (const offset of offsets) {
+          const signPos = chestPos.offset(offset.x, offset.y, offset.z);
+          const signBlock = bot.blockAt(signPos);
+          if (signBlock && signBlock.name.includes('sign')) {
+            try {
+              signText = signBlock.getSignText();
+              if (signText) {
+                console.log(`[KIT] Found sign on chest at ${chestPos}: "${signText}"`);
+                break;
+              }
+            } catch (e) {
+              // Sign reading failed, continue
+            }
+          }
+        }
+        
+        // Check if sign text matches the kit type
+        if (!signText || !signText.toLowerCase().includes(kitType.toLowerCase())) {
+          console.log(`[KIT] Chest at ${chestPos} - sign text doesn't match kit type "${kitType}"`);
+          continue;
+        }
+        
+        console.log(`[KIT] ✓ Found chest with matching sign for ${kitType}!`);
+        
         const distance = bot.entity.position.distanceTo(chestBlock.position);
-        console.log(`[KIT] Checking chest at ${chestPos}, distance: ${distance.toFixed(2)}`);
+        console.log(`[KIT] Distance to chest: ${distance.toFixed(2)}`);
         
         // Navigate to the chest if too far
         if (distance > 4) {
@@ -154,7 +193,7 @@ async function processKitQueue(bot) {
           await new Promise(resolve => setTimeout(resolve, 500));
         }
         
-        // Look at the chest before opening (important!)
+        // Look at the chest before opening
         await bot.lookAt(chestBlock.position);
         await new Promise(resolve => setTimeout(resolve, 500));
         
@@ -171,50 +210,21 @@ async function processKitQueue(bot) {
         // Wait for chest to fully load
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Look for any shulkerbox with matching kit name (case-insensitive)
+        // Take ANY shulker box from this chest
         const items = chest.containerItems();
         console.log(`[KIT] Chest has ${items.length} items`);
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            // Debug: Log full item details
-            console.log(`[KIT] Checking shulker - name: ${item.name}, displayName: ${item.displayName}`);
-            console.log(`[KIT] Has NBT: ${item.nbt ? 'yes' : 'no'}`);
-            
-            // Use built-in customName property to get renamed item name (returns null if not renamed)
-            const customName = item.customName;
-            console.log(`[KIT] customName property: "${customName}"`);
-            
-            // If customName doesn't work, try direct NBT access
-            let nbtName = null;
-            if (item.nbt && item.nbt.value && item.nbt.value.display && item.nbt.value.display.value.Name) {
-              nbtName = item.nbt.value.display.value.Name.value;
-              console.log(`[KIT] NBT Name raw: "${nbtName}"`);
-              try {
-                const parsed = JSON.parse(nbtName);
-                nbtName = parsed.text || nbtName;
-                console.log(`[KIT] NBT Name parsed: "${nbtName}"`);
-              } catch {
-                console.log(`[KIT] NBT Name (not JSON): "${nbtName}"`);
-              }
-            }
-            
-            const displayName = customName || nbtName || item.displayName || item.name;
-            console.log(`[KIT] Final display name: "${displayName}"`);
-            
-            // Match any shulker box display name containing the kit type (case-insensitive)
-            if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
-              // Found a matching shulkerbox - take it
-              console.log(`[KIT] MATCH FOUND! Taking ${kitType} kit...`);
-              try {
-                await chest.withdraw(item.type, null, item.count);
-                shulkerFound = true;
-                shulkerWithdrawn = true;
-                console.log(`[KIT] ✓ Successfully withdrew ${kitType} kit shulker: "${displayName}"`);
-                break;
-              } catch (withdrawError) {
-                console.log(`[KIT] Failed to withdraw: ${withdrawError.message}`);
-              }
+            console.log(`[KIT] Found shulker: ${item.displayName}`);
+            try {
+              await chest.withdraw(item.type, null, item.count);
+              shulkerFound = true;
+              shulkerWithdrawn = true;
+              console.log(`[KIT] ✓ Successfully took ${kitType} kit shulker!`);
+              break;
+            } catch (withdrawError) {
+              console.log(`[KIT] Failed to withdraw: ${withdrawError.message}`);
             }
           }
         }
@@ -223,13 +233,11 @@ async function processKitQueue(bot) {
         
         if (shulkerFound) break;
         
-        // Add delay between chest checks to avoid server rate limiting
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Add delay between chest checks
+        await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (err) {
-        // Skip this chest if we can't open it and try the next one
         console.log(`[KIT] Error with chest at ${chestPos}: ${err.message}`);
-        // Add delay even on error to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
     }
