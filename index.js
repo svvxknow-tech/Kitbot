@@ -3,6 +3,8 @@
 const mineflayer = require("mineflayer");
 const config = require("./config.json");
 const discord = require("@discordjs/collection");
+const { pathfinder, Movements } = require("mineflayer-pathfinder");
+const collectBlock = require("mineflayer-collectblock");
 
 // Config Validation
 
@@ -27,21 +29,30 @@ if (!config.cooldown) {
 // Configuration for the Bot.
 
 const options = {
-  host: "0b0t.org", // The server we want to connect to.
-  auth: "microsoft", // The auth server we want to use.
-  version: "1.12.2", // The Version the Minecraft Server will use.
-  username: config.email, // Your microsoft account email, this account has to own minecraft.
+  host: "0b0t.org",
+  auth: "microsoft",
+  version: "1.12.2",
+  username: config.email,
 };
 
 // Creation of the Bot.
 
 var bot = mineflayer.createBot(options);
 
+// Load plugins
+
+bot.loadPlugin(pathfinder);
+bot.loadPlugin(collectBlock.plugin);
+
 // Initialization of required variables.
 
 global.commands = new discord.Collection();
 global.spam = false;
 global.cooldowns = [];
+global.kitQueue = [];
+global.processingKit = false;
+global.followingPlayer = null;
+global.currentTpTimeout = null;
 
 // Binding for the Events and Commands.
 
@@ -52,6 +63,13 @@ require("./handlers/commandHandler")(bot);
 // Bind Events function
 
 function bind(bot) {
+  // Set up pathfinder movements once bot spawns
+  bot.once("spawn", () => {
+    const defaultMove = new Movements(bot);
+    bot.pathfinder.setMovements(defaultMove);
+    console.log("Bot spawned and pathfinder initialized!");
+  });
+
   // Register Events that require the Bot to restart.
 
   bot.on("error", (error) => restart(`Error: ${error.message}`));
@@ -70,6 +88,8 @@ function restart(message) {
 
   setTimeout(() => {
     bot = mineflayer.createBot(options);
+    bot.loadPlugin(pathfinder);
+    bot.loadPlugin(collectBlock.plugin);
     bind(bot);
   }, 5000);
 }

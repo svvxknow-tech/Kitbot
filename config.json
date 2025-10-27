@@ -2,5 +2,17 @@
   "owner": "",
   "email": "",
   "prefix": "!",
-  "cooldown": 10000
+  "cooldown": 10000,
+  "whitelist": [],
+  "chestLocation": {
+    "x": 0,
+    "y": 64,
+    "z": 0
+  },
+  "baseLocation": {
+    "x": 0,
+    "y": 64,
+    "z": 0
+  },
+  "kitName": "kit"
 }

@@ -10,8 +10,19 @@ function hasCooldown(username) {
 function removeCooldown(username) {
   const index = global.cooldowns.indexOf(username);
   if (index > -1) {
-    cooldowns.splice(index, 1);
+    global.cooldowns.splice(index, 1);
   }
+}
+
+// Whitelist functions
+
+const config = require("./config.json");
+
+function isWhitelisted(username) {
+  if (!config.whitelist || config.whitelist.length === 0) {
+    return true;
+  }
+  return config.whitelist.includes(username);
 }
 
 // Exports the functions to be used in other files
@@ -19,4 +30,5 @@ function removeCooldown(username) {
 module.exports = {
   hasCooldown,
   removeCooldown,
+  isWhitelisted,
 };
