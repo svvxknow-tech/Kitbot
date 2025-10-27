@@ -76,12 +76,34 @@ function bind(bot) {
       }, 1000);
       
       setTimeout(() => {
-        bot.chat(`/tpa ${config.owner}`);
-        console.log(`Sent TPA request to owner: ${config.owner}`);
-        global.firstJoin = false;
+        checkAndSendTPA();
       }, 3000);
     }
   });
+
+  // Function to check if owner is online and send TPA
+  function checkAndSendTPA() {
+    const ownerOnline = bot.players[config.owner];
+    
+    if (ownerOnline) {
+      bot.chat(`/tpa ${config.owner}`);
+      console.log(`Owner ${config.owner} is online. Sent TPA request.`);
+      global.firstJoin = false;
+    } else {
+      console.log(`Owner ${config.owner} is not online. Waiting for them to join...`);
+      
+      // Listen for when the owner joins
+      bot.on("playerJoined", (player) => {
+        if (player.username === config.owner && global.firstJoin) {
+          setTimeout(() => {
+            bot.chat(`/tpa ${config.owner}`);
+            console.log(`Owner ${config.owner} joined! Sent TPA request.`);
+            global.firstJoin = false;
+          }, 2000);
+        }
+      });
+    }
+  }
 
   // Register Events that require the Bot to restart.
 
