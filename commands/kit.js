@@ -174,10 +174,28 @@ async function processKitQueue(bot) {
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            const displayName = item.nbt?.value?.display?.value?.Name?.value || "unnamed";
+            // Try different NBT paths to get the display name
+            let displayName = "unnamed";
+            
+            // Debug: log the NBT structure
+            if (item.nbt) {
+              console.log(`[KIT] NBT structure:`, JSON.stringify(item.nbt, null, 2));
+            }
+            
+            // Try different paths for the display name
+            if (item.nbt?.value?.display?.value?.Name?.value) {
+              displayName = item.nbt.value.display.value.Name.value;
+            } else if (item.nbt?.value?.display?.Name?.value) {
+              displayName = item.nbt.value.display.Name.value;
+            } else if (item.displayName) {
+              displayName = item.displayName;
+            } else if (item.customName) {
+              displayName = item.customName;
+            }
+            
             console.log(`[KIT] Found shulker: "${displayName}"`);
             
-            // Match any shulker box name containing the kit type (e.g., "grief", "pvp", "basic")
+            // Match any shulker box name containing the kit type (case-insensitive)
             if (displayName.toLowerCase().includes(kitType.toLowerCase())) {
               // Found a matching shulkerbox - take it
               await chest.withdraw(item.type, null, item.count);
