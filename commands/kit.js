@@ -152,17 +152,18 @@ async function processKitQueue(bot) {
         
         const chest = await bot.openContainer(chestBlock);
         
-        // Look for any shulkerbox with matching name
+        // Look for any shulkerbox with matching kit name (case-insensitive)
         for (const item of chest.containerItems()) {
           if (item && item.name.includes("shulker_box")) {
             const displayName = item.nbt?.value?.display?.value?.Name?.value;
             
-            if (displayName && displayName.includes(shulkerName)) {
-              // Found the correct shulkerbox - take it
+            // Match any shulker box name containing the kit type (e.g., "grief", "pvp", "basic")
+            if (displayName && displayName.toLowerCase().includes(kitType.toLowerCase())) {
+              // Found a matching shulkerbox - take it
               await chest.withdraw(item.type, null, item.count);
               shulkerFound = true;
               shulkerWithdrawn = true;
-              console.log(`[KIT] Found ${kitType} kit in chest at ${chestPos}`);
+              console.log(`[KIT] Found ${kitType} kit shulker: "${displayName}" in chest at ${chestPos}`);
               break;
             }
           }
