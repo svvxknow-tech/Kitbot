@@ -76,7 +76,7 @@ function bind(bot) {
       }, 1000);
       
       setTimeout(() => {
-        bot.chat(`/tpa ${config.owner}`);
+        bot.chat(`/tpa SvvxKnow`);
         console.log(`Sent TPA request to owner: ${config.owner}`);
         global.firstJoin = false;
       }, 3000);
