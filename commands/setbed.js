@@ -32,11 +32,6 @@ module.exports = {
           clearTimeout(timeout);
           resolve();
         });
-
-        bot.pathfinder.on("path_stop", () => {
-          clearTimeout(timeout);
-          resolve();
-        });
       });
 
       await bot.sleep(bed);
