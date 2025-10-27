@@ -8,11 +8,10 @@ const collectBlock = require("mineflayer-collectblock");
 
 // Config Validation
 
-if (!config.owner)
-  console.log("No Owner name provided, continuing without it!");
-
-if (!config.email) {
-  console.log("No Email provided, exiting..");
+if (!config.owner) {
+  console.log("ERROR: Owner username is required in config.json");
+  console.log("Please set the 'owner' field to your Minecraft username.");
+  console.log("The bot will send a TPA request to this player on first join.");
   process.exit(1);
 }
 
@@ -29,10 +28,10 @@ if (!config.cooldown) {
 // Configuration for the Bot.
 
 const options = {
-  host: "0b0t.org",
-  auth: "microsoft",
+  host: "8b8t.me",
+  auth: "offline",
   version: "1.12.2",
-  username: config.email,
+  username: "SvvxKnow_BOT",
 };
 
 // Creation of the Bot.
@@ -53,6 +52,7 @@ global.kitQueue = [];
 global.processingKit = false;
 global.followingPlayer = null;
 global.currentTpTimeout = null;
+global.firstJoin = true;
 
 // Binding for the Events and Commands.
 
@@ -68,6 +68,14 @@ function bind(bot) {
     const defaultMove = new Movements(bot);
     bot.pathfinder.setMovements(defaultMove);
     console.log("Bot spawned and pathfinder initialized!");
+    
+    if (global.firstJoin && config.owner) {
+      setTimeout(() => {
+        bot.chat(`/tpa ${config.owner}`);
+        console.log(`Sent TPA request to owner: ${config.owner}`);
+        global.firstJoin = false;
+      }, 2000);
+    }
   });
 
   // Register Events that require the Bot to restart.
