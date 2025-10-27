@@ -3,6 +3,9 @@ const config = require("../config.json");
 module.exports = {
   name: "chat",
   async execute(bot, username, message) {
+    // Log all chat messages to console
+    console.log(`[CHAT] ${username}: ${message}`);
+    
     if (global.spam) return;
     if (message.startsWith(config.prefix)) {
       const args = message.slice(config.prefix.length).trim().split(/ +/);
