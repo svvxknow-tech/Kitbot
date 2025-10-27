@@ -12,7 +12,7 @@ module.exports = {
     bot.chatAddPattern(/^Walk a block to speak in chat..*/, "moveToTalk");
 
     // Accepted Teleport Event
-    bot.chatAddPattern(/^Teleporting....*/, "acceptedTp");
+    bot.chatAddPattern(/^Teleporting...&r.*/, "acceptedTp");
 
     // Delayed /kill Command
     bot.chatAddPattern(
@@ -21,7 +21,7 @@ module.exports = {
     );
 
     // Sent TPA Event
-    bot.chatAddPattern(/^Request sent to: (\w*).*/, "sentTpa");
+    bot.chatAddPattern(/^Request sent to (\w*).*/, "sentTpa");
 
     // Command Spam Event
     bot.chatAddPattern(
