@@ -29,9 +29,17 @@
       "kits": 0,
       "orders": 1,
       "dupes": 0
+    },
+    "MladeyTony": {
+      "kits": 0,
+      "orders": 2
+    },
+    "PorotoCosmico": {
+      "kits": 0,
+      "orders": 1
     }
   },
   "totalKits": 0,
-  "totalOrders": 11,
+  "totalOrders": 14,
   "totalDupes": 0
 }

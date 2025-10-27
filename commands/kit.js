@@ -102,8 +102,8 @@ async function processKitQueue(bot) {
 
     // Find nearby chests
     const chests = bot.findBlocks({
-      matching: (block) => block.name.includes("chest") && !block.name.includes("ender"),
-      maxDistance: 10,
+      matching: (block) => block.name.includes("chest") && !block.name.includes("trapped"),
+      maxDistance: 20,
       count: 20
     });
 
