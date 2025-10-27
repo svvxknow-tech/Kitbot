@@ -1,14 +1,10 @@
 const OpenAI = require("openai");
 const axios = require("axios");
-const util = require("../util");
 
 module.exports = {
   name: "chatgpt",
-  description: "Ask ChatGPT a question. Usage: ?chatgpt <question> (whitelist only)",
+  description: "Ask ChatGPT a question. Usage: ?chatgpt <question>",
   async execute(bot, args, username) {
-    if (!util.isWhitelisted(username)) {
-      return bot.chat(`/w ${username} You are not authorized to use this command.`);
-    }
 
     if (!process.env.OPENAI_API_KEY) {
       return bot.chat(`/w ${username} OpenAI API key not configured.`);
