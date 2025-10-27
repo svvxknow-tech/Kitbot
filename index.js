@@ -102,8 +102,8 @@ function bind(bot) {
         const messages = [
           "Do ?kitlist to see available kits!",
           "Do ?commands to see all of the bot commands!",
-          "This bot is coord logger free! Your privacy is respected."
-          "
+          "This bot is coord logger free! Your privacy is respected.",
+          "This bot is made by SvvxKnow!, you can find him on discord: prodsire"
         ];
         
         setInterval(() => {
