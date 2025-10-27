@@ -176,6 +176,11 @@ async function processKitQueue(bot) {
           if (item && item.name.includes("shulker_box")) {
             let customName = null;
             
+            // Debug: Log the full NBT structure for the first shulker
+            if (item.nbt) {
+              console.log(`[KIT DEBUG] Full NBT:`, JSON.stringify(item.nbt, null, 2));
+            }
+            
             // Try to get the custom name from NBT
             if (item.nbt?.value?.display?.value?.Name?.value) {
               const nameValue = item.nbt.value.display.value.Name.value;
