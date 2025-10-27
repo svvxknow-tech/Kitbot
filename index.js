@@ -71,10 +71,15 @@ function bind(bot) {
     
     if (global.firstJoin && config.owner) {
       setTimeout(() => {
+        bot.chat("/login lol123");
+        console.log("Sent login command");
+      }, 1000);
+      
+      setTimeout(() => {
         bot.chat(`/tpa ${config.owner}`);
         console.log(`Sent TPA request to owner: ${config.owner}`);
         global.firstJoin = false;
-      }, 2000);
+      }, 3000);
     }
   });
 
@@ -99,5 +104,5 @@ function restart(message) {
     bot.loadPlugin(pathfinder);
     bot.loadPlugin(collectBlock.plugin);
     bind(bot);
-  }, 5000);
+  }, 60000);
 }
