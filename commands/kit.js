@@ -174,20 +174,8 @@ async function processKitQueue(bot) {
         
         for (const item of items) {
           if (item && item.name.includes("shulker_box")) {
-            // Get custom name from NBT data (renamed items)
-            let customName = null;
-            if (item.nbt && item.nbt.value && item.nbt.value.display && item.nbt.value.display.value.Name) {
-              const nameValue = item.nbt.value.display.value.Name.value;
-              // Try to parse JSON format (Minecraft 1.13+)
-              try {
-                const parsed = JSON.parse(nameValue);
-                customName = parsed.text || nameValue;
-              } catch {
-                // Pre-1.13 format or plain string
-                customName = nameValue;
-              }
-            }
-            
+            // Use built-in customName() method to get renamed item name
+            const customName = item.customName ? item.customName() : null;
             const displayName = customName || item.displayName || item.name;
             console.log(`[KIT] Found shulker: "${displayName}"`);
             
