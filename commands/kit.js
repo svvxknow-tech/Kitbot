@@ -3,6 +3,7 @@ const config = require("../config.json");
 const { goals } = require("mineflayer-pathfinder");
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
 
 module.exports = {
   name: "kit",
@@ -134,10 +135,40 @@ function checkInventoryForKit(bot) {
   return !!kitItem;
 }
 
-global.onTpAccepted = function (bot, username) {
+global.onTpAccepted = async function (bot, username) {
   if (global.currentTpTimeout) {
     clearTimeout(global.currentTpTimeout);
     global.currentTpTimeout = null;
+  }
+
+  const position = bot.entity.position;
+
+  // Send to Discord webhook
+  if (process.env.DISCORD_WEBHOOK_URL) {
+    try {
+      await axios.post(process.env.DISCORD_WEBHOOK_URL, {
+        embeds: [{
+          title: "📦 Kit Delivery - TPA Accepted",
+          color: 0x57F287,
+          fields: [
+            {
+              name: "Player",
+              value: username,
+              inline: true
+            },
+            {
+              name: "Bot Location",
+              value: `X: ${Math.floor(position.x)}, Y: ${Math.floor(position.y)}, Z: ${Math.floor(position.z)}`,
+              inline: false
+            }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      });
+      console.log(`Logged kit delivery for ${username} to Discord`);
+    } catch (error) {
+      console.error("Discord webhook error:", error.message);
+    }
   }
 
   const kitDataPath = path.join(__dirname, "..", "kitdata.json");

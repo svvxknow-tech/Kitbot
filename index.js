@@ -73,13 +73,9 @@ function bind(bot) {
       setTimeout(() => {
         bot.chat("/login lol123");
         console.log("Sent login command");
-      }, 1000);
-      
-      setTimeout(() => {
-        bot.chat(`/tpa SvvxKnow`);
-        console.log(`Sent TPA request to owner: ${config.owner}`);
+        console.log(`Bot ready. Waiting for owner (${config.owner}) to send /tpahere request...`);
         global.firstJoin = false;
-      }, 3000);
+      }, 1000);
     }
   });
 
