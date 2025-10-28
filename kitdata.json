@@ -17,7 +17,7 @@
     },
     "SvvxKnow": {
       "kits": 0,
-      "orders": 35,
+      "orders": 36,
       "dupes": 0
     },
     "No1_Anhkhoi": {
@@ -57,9 +57,13 @@
     "undefined": {
       "kits": 1,
       "orders": 0
+    },
+    "Zizoxosy": {
+      "kits": 0,
+      "orders": 1
     }
   },
   "totalKits": 1,
-  "totalOrders": 51,
+  "totalOrders": 53,
   "totalDupes": 0
 }
