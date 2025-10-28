@@ -45,9 +45,13 @@
     "tv__": {
       "kits": 0,
       "orders": 1
+    },
+    "paso": {
+      "kits": 0,
+      "orders": 2
     }
   },
   "totalKits": 0,
-  "totalOrders": 35,
+  "totalOrders": 37,
   "totalDupes": 0
 }
