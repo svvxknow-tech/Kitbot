@@ -4,7 +4,7 @@ const config = require("../config.json");
 module.exports = {
   name: "acceptedTp",
   async execute(bot, username) {
-    console.log(`TPed to ${username}`);
+    console.log(`[ACCEPTED TP EVENT FIRED!] TPed to ${username}`);
     
     if (global.onTpAccepted) {
       global.onTpAccepted(bot, username);
