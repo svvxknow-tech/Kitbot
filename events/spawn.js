@@ -12,13 +12,6 @@ module.exports = {
     bot.chatAddPattern(/^Walk a block to speak in chat..*/, "moveToTalk");
 
     // Accepted Teleport Event
-    // Debug: log all messages to see what we're matching against
-    bot.on('message', (message) => {
-      const text = message.toString();
-      if (text.includes('Teleporting')) {
-        console.log(`[DEBUG TELEPORT] Message text: "${text}"`);
-      }
-    });
     bot.chatAddPattern(/Teleporting/, "acceptedTp");
 
     // Delayed /kill Command
