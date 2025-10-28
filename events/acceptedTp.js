@@ -15,7 +15,7 @@ module.exports = {
         setTimeout(() => {
           util.removeCooldown(username);
         }, config.cooldown);
-      });
+      }, 1000);
     }
   },
 };
