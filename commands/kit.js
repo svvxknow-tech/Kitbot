@@ -201,39 +201,49 @@ async function processKitQueue(bot) {
         await bot.lookAt(chestBlock.position);
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Try to open the chest
+        // Try to open the chest - with comprehensive error handling for corrupted items
         let chest;
         try {
           chest = await bot.openContainer(chestBlock);
+          
+          // Wait for chest to fully load
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Try to get items - this might fail if items are corrupted
+          let items;
+          try {
+            items = chest.containerItems();
+            console.log(`[KIT] Chest has ${items.length} items`);
+          } catch (itemError) {
+            console.log(`[KIT] ⚠ Corrupted items in chest at ${chestPos}, skipping: ${itemError.message}`);
+            chest.close();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            continue;
+          }
+          
+          // Take ANY shulker box from this chest
+          for (const item of items) {
+            if (item && item.name.includes("shulker_box")) {
+              console.log(`[KIT] Found shulker: ${item.displayName}`);
+              try {
+                await chest.withdraw(item.type, null, item.count);
+                shulkerFound = true;
+                shulkerWithdrawn = true;
+                console.log(`[KIT] ✓ Successfully took ${kitType} kit shulker!`);
+                break;
+              } catch (withdrawError) {
+                console.log(`[KIT] ⚠ Failed to withdraw (corrupted shulker): ${withdrawError.message}`);
+                // Continue to next item in this chest
+              }
+            }
+          }
+
+          chest.close();
         } catch (openError) {
-          console.log(`[KIT] Could not open chest at ${chestPos}: ${openError.message}`);
+          console.log(`[KIT] ⚠ Could not open chest at ${chestPos} (likely corrupted items): ${openError.message}`);
           await new Promise(resolve => setTimeout(resolve, 2000));
           continue;
         }
-        
-        // Wait for chest to fully load
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Take ANY shulker box from this chest
-        const items = chest.containerItems();
-        console.log(`[KIT] Chest has ${items.length} items`);
-        
-        for (const item of items) {
-          if (item && item.name.includes("shulker_box")) {
-            console.log(`[KIT] Found shulker: ${item.displayName}`);
-            try {
-              await chest.withdraw(item.type, null, item.count);
-              shulkerFound = true;
-              shulkerWithdrawn = true;
-              console.log(`[KIT] ✓ Successfully took ${kitType} kit shulker!`);
-              break;
-            } catch (withdrawError) {
-              console.log(`[KIT] Failed to withdraw: ${withdrawError.message}`);
-            }
-          }
-        }
-
-        chest.close();
         
         if (shulkerFound) break;
         

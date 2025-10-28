@@ -124,7 +124,16 @@ function bind(bot) {
 
   // Register Events that require the Bot to restart.
 
-  bot.on("error", (error) => restart(`Error: ${error.message}`));
+  bot.on("error", (error) => {
+    // Don't restart for protocol errors related to corrupted items
+    if (error.message && (error.message.includes('PartialReadError') || 
+        error.message.includes('SizeOf error') || 
+        error.message.includes('array size is abnormally large'))) {
+      console.log(`⚠ Protocol error (likely corrupted items): ${error.message}`);
+      return; // Don't restart, just log it
+    }
+    restart(`Error: ${error.message}`);
+  });
   bot.on("kicked", (reason) => restart(`Kicked: ${reason}`));
   bot.on("end", (reason) => restart(`Exited: ${reason}`));
 
