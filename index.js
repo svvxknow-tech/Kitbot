@@ -87,10 +87,16 @@ function bind(bot) {
     bot.pathfinder.setMovements(defaultMove);
     console.log("Bot spawned and pathfinder initialized!");
     
-    // Start prismarine-viewer
-    mineflayerViewer(bot, { port: 5000, firstPerson: true });
-    console.log("Prismarine viewer started on port 5000");
-    console.log("View what the bot sees at: https://" + process.env.REPL_SLUG + "." + process.env.REPL_OWNER + ".repl.co");
+    // Start prismarine-viewer only on first spawn to avoid port conflicts
+    if (global.firstJoin) {
+      try {
+        mineflayerViewer(bot, { port: 5000, firstPerson: true });
+        console.log("Prismarine viewer started on port 5000");
+        console.log("View what the bot sees at: https://" + process.env.REPL_SLUG + "." + process.env.REPL_OWNER + ".repl.co");
+      } catch (error) {
+        console.log("Viewer already running or port in use:", error.message);
+      }
+    }
     
     if (global.firstJoin) {
       setTimeout(() => {

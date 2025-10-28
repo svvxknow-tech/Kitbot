@@ -59,7 +59,8 @@ async function cleanupInventory(bot) {
       await bot.tossStack(shulker);
       console.log(`Dropped shulker: ${shulker.displayName || shulker.name}`);
     } catch (error) {
-      console.error("Error dropping shulker:", error);
+      console.error("Error dropping shulker (likely corrupted item data):", error.message);
+      // If we can't drop it normally, we'll kill the bot later
     }
   }
   

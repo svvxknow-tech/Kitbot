@@ -17,7 +17,7 @@
     },
     "SvvxKnow": {
       "kits": 0,
-      "orders": 23,
+      "orders": 26,
       "dupes": 0
     },
     "No1_Anhkhoi": {
@@ -48,10 +48,14 @@
     },
     "paso": {
       "kits": 0,
-      "orders": 2
+      "orders": 3
+    },
+    "BanaaanekCZLP": {
+      "kits": 0,
+      "orders": 1
     }
   },
   "totalKits": 0,
-  "totalOrders": 37,
+  "totalOrders": 42,
   "totalDupes": 0
 }
