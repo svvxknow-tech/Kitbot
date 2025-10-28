@@ -142,6 +142,8 @@ function restart(message) {
     bot = mineflayer.createBot(options);
     bot.loadPlugin(pathfinder);
     bot.loadPlugin(collectBlock.plugin);
+    bot.loadPlugin(gui);
     bind(bot);
-  }, 60000);
+    require("./handlers/commandHandler")(bot);
+  }, 120000);
 }
